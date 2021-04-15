@@ -10,22 +10,48 @@ exports.roleUser = (req, res, next) => {
   next();
 };
 exports.auth = async (req, res, next) => {
-  const token = req.cookies.logToken;
-  // console.log(token);
+  const token = req.cookies.UserToken || req.cookies.AdminToken;
   if (token) {
     jwt.verify(token, process.env.SECRET_TOKEN, async (err, decodedToken) => {
       if (!err && decodedToken.data.role === res.Role) {
         res.currentUser = await User.findOne({
-          _id: decodedToken.data._id,
+          _id: decodedToken.data.id,
         }).select('-password');
         next();
       } else {
-        res.cookie('token', '', { maxAge: 1 });
-        return res.status(401).json(`private root need ${res.Role} login`);
+        decodedToken.data.role === 'Admin'
+          ? res
+              .clearCookie('AdminToken')
+              .json(`private root need ${res.Role} login`)
+          : res
+              .clearCookie('UserToken')
+              .json(`private root need ${res.Role} login`);
       }
     });
   } else {
-    res.cookie('token', '', { maxAge: 1 });
     return res.status(400).json(`private root need ${res.Role} login`);
+  }
+};
+
+exports.verifIsAuthenticated = (req, res, next) => {
+  const token = req.cookies.UserToken || req.cookies.AdminToken;
+  if (token) {
+    jwt.verify(token, process.env.SECRET_TOKEN, async (err, decodedToken) => {
+      if (err) {
+        decodedToken.data.role === 'Admin'
+          ? res
+              .clearCookie('AdminToken')
+              .json(`private root need ${res.Role} login`)
+          : res
+              .clearCookie('UserToken')
+              .json(`private root need ${res.Role} login`);
+      } else {
+        decodedToken.data.role === 'Admin'
+          ? res.status(200).json({ role: 'Admin', isAuthenticated: true })
+          : res.status(200).json({ role: 'Client', isAuthenticated: true });
+      }
+    });
+  } else {
+    res.json({ role: '', isAuthenticated: false });
   }
 };

@@ -9,19 +9,27 @@ const morgan = require('morgan');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const clientAuthentificatinRoutes = require('./routes/clientauth.routes');
-const adminAuthentificatinRoutes = require('./routes/adminauth.routes');
+const authRoutes = require('./routes/auth.routes');
+const { verifIsAuthenticated } = require('./middlewares/auth.middlewares');
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 if (process.env.NODE_ENV === 'developpement') app.use(morgan('tiny'));
 
 // Routes
-app.use('/api/auth', clientAuthentificatinRoutes);
-app.use('/api/auth', adminAuthentificatinRoutes);
+app.use('/api/auth', authRoutes);
+app.use('*', verifIsAuthenticated, (req, res, next) => {
+  next();
+});
+
 // app express
 app.listen(PORT, () => {
   console.log(`app listning : localhost:${PORT}`);

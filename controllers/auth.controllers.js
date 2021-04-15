@@ -6,10 +6,7 @@ const {
   registerValidations,
   loginValidations,
 } = require('../validations/auth.validations');
-const {
-  ifUserExist,
-  createToken,
-} = require('../utils/authentification.request');
+const { ifExist, createToken } = require('../utils/auth.utils');
 
 /* ! @Route  : POST => /register
      Desc    : Regsiter the users
@@ -19,7 +16,7 @@ exports.registerController = async (req, res) => {
   const { error } = registerValidations(req.body);
   if (error) return res.status(400).json(error.details[0].message);
   try {
-    if (await ifUserExist(req))
+    if (await ifExist(req, User))
       return res.status(400).json('Mail deja existant veiller Vous Connecter');
     const newUser = new User({ ...req.body });
     newUser.password = await bcrypt.hash(
@@ -45,7 +42,7 @@ exports.loginController = async (req, res) => {
   let tokenName = '';
   const { error } = loginValidations(req.body);
   if (error) return res.status(400).json(error.details[0].message);
-  const userExist = await ifUserExist(req);
+  const userExist = await ifExist(req, User);
   if (
     !userExist ||
     !(await bcrypt.compare(req.body.password, userExist.password))

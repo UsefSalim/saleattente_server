@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const authRoutes = require('./routes/auth.routes');
+const adminRoutes = require('./routes/admin.routes');
 const { verifIsAuthenticated } = require('./middlewares/auth.middlewares');
 
 // Middleware
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === 'developpement') app.use(morgan('tiny'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('*', verifIsAuthenticated, (req, res, next) => {
   next();
 });

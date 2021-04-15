@@ -21,21 +21,9 @@ const medecinSchema = Schema({
     unique: true,
   },
   specialite: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'specialite',
     required: true,
-    ennum: [
-      "allergologie ou l'immunologie",
-      'anesthésiologie',
-      'andrologie',
-      'cardiologie',
-      'chirurgie',
-      'dermatologie',
-      'L’endocrinologie',
-      'gastro-entérologie',
-      'gériatrie',
-      'gynécologie',
-      "L'hématologie",
-    ],
   },
   matricule: {
     type: String,

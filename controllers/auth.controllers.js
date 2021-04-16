@@ -2,11 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 const bcrypt = require('bcrypt');
 const User = require('../models/user.models');
+const Sale = require('../models/salle_attente.models');
+
 const {
   registerValidations,
   loginValidations,
 } = require('../validations/auth.validations');
-const { ifExist, createToken } = require('../utils/auth.utils');
+const { ifExist, createToken, createSale } = require('../utils/auth.utils');
 
 /* ! @Route  : POST => /register
      Desc    : Regsiter the users
@@ -42,23 +44,28 @@ exports.loginController = async (req, res) => {
   let tokenName = '';
   const { error } = loginValidations(req.body);
   if (error) return res.status(400).json(error.details[0].message);
-  const userExist = await ifExist(req, User);
-  if (
-    !userExist ||
-    !(await bcrypt.compare(req.body.password, userExist.password))
-  )
-    return res.status(400).json('Mail ou password Incorrect');
-  const token = createToken({ id: userExist._id, role: userExist.role });
-  userExist.role === 'Admin'
-    ? (tokenName = 'AdminToken')
-    : (tokenName = 'UserToken');
-  res
-    .status(200)
-    .cookie(tokenName, token, {
-      httpOnly: true,
-      maxAge: process.env.JWT_EXPIRATION_TIME,
-    })
-    .json({ role: userExist.role, isAuthenticated: true });
+  try {
+    const userExist = await ifExist(req, User);
+    if (
+      !userExist ||
+      !(await bcrypt.compare(req.body.password, userExist.password))
+    )
+      return res.status(400).json('Mail ou password Incorrect');
+    const token = createToken({ id: userExist._id, role: userExist.role });
+    userExist.role === 'Admin'
+      ? (tokenName = 'AdminToken')
+      : (tokenName = 'UserToken');
+    userExist.role === 'User' && (await createSale(Sale));
+    res
+      .status(200)
+      .cookie(tokenName, token, {
+        httpOnly: true,
+        maxAge: process.env.JWT_EXPIRATION_TIME,
+      })
+      .json({ role: userExist.role, isAuthenticated: true });
+  } catch (error) {
+    return res.status(500).json(error);
+  }
 };
 /* ! @Route  : POST => /logout
      Desc    : Logout the users

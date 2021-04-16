@@ -19,6 +19,8 @@ const medecinSchema = Schema({
     type: String,
     required: true,
     unique: true,
+    min: 7,
+    max: 8,
   },
   specialite: {
     type: Schema.Types.ObjectId,

@@ -1,9 +1,12 @@
 /* eslint-disable no-return-await */
 /* eslint-disable no-underscore-dangle */
 const jwt = require('jsonwebtoken');
+const Sale = require('../models/salle_attente.models');
 
 exports.ifExist = async (req, Model) =>
   await Model.findOne({ email: req.body.email });
+
+exports.todaySale = async () => await Sale.findOne().sort({ date: -1 });
 
 exports.createToken = (data) =>
   jwt.sign({ data }, process.env.SECRET_TOKEN, {
@@ -19,7 +22,7 @@ const formatDate = (date) => {
 };
 
 exports.createSale = async (Sale) => {
-  const SaleExiste = await Sale.findOne().sort({ date: -1 });
+  const SaleExiste = await this.todaySale();
   if (!SaleExiste) {
     const newSale = new Sale();
     await newSale.save();

@@ -3,7 +3,7 @@
 // const today = new Date(timeElapsed);
 // console.log(today);
 // const x = today.toLocaleDateString();
-// const y = '1/04/2021';
+const y = '1/04/2021';
 
 // const a = x.split('/');
 // const b = y.split('/');
@@ -28,5 +28,5 @@ const date = (date) => {
 };
 
 const date2 = date(Date.now());
-const date1 = date(new Date(new Date().valueOf() + 1000 * 3600 * 24));
+const date1 = date(y);
 console.log(compare_dates(date1, date2));

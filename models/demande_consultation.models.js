@@ -21,12 +21,12 @@ const demande_consultationSchema = Schema({
   numero_ordre: {
     type: Number,
     require: true,
+    default: 1,
   },
   etat: {
     type: String,
     ennum: ['En attente', 'En cours', 'Examiné'],
     dafault: 'En attente',
-    required: true,
   },
 });
 

@@ -24,7 +24,7 @@ app.use(
     credentials: true,
   })
 );
-if (process.env.NODE_ENV === 'developpement') app.use(morgan('tiny'));
+if (process.env.NODE_ENV === 'developpement') app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);

@@ -1,16 +1,17 @@
+/* eslint-disable no-underscore-dangle */
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.models');
 
-exports.roleAdmin = (req, res, next) => {
+exports.roleAdmin = (_req, res, next) => {
   res.Role = 'Admin';
   next();
 };
-exports.roleUser = (req, res, next) => {
+exports.roleUser = (_req, res, next) => {
   res.Role = 'User';
   next();
 };
 exports.auth = async (req, res, next) => {
-  const token = req.cookies.UserToken || req.cookies.AdminToken;
+  const token = req.cookies._token;
   if (token) {
     jwt.verify(token, process.env.SECRET_TOKEN, async (err, decodedToken) => {
       if (!err && decodedToken.data.role === res.Role) {
@@ -19,13 +20,7 @@ exports.auth = async (req, res, next) => {
         }).select('-password');
         next();
       } else {
-        decodedToken.data.role === 'Admin'
-          ? res
-              .clearCookie('AdminToken')
-              .json(`private root need ${res.Role} login`)
-          : res
-              .clearCookie('UserToken')
-              .json(`private root need ${res.Role} login`);
+        res.clearCookie('_token').json(`private root need ${res.Role} login`);
       }
     });
   } else {
@@ -33,22 +28,17 @@ exports.auth = async (req, res, next) => {
   }
 };
 
-exports.verifIsAuthenticated = (req, res, next) => {
-  const token = req.cookies.UserToken || req.cookies.AdminToken;
+exports.verifIsAuthenticated = (req, res) => {
+  const token = req.cookies._token;
+  console.log(token);
   if (token) {
     jwt.verify(token, process.env.SECRET_TOKEN, async (err, decodedToken) => {
       if (err) {
-        decodedToken.data.role === 'Admin'
-          ? res
-              .clearCookie('AdminToken')
-              .json(`private root need ${res.Role} login`)
-          : res
-              .clearCookie('UserToken')
-              .json(`private root need ${res.Role} login`);
+        res.clearCookie('_token').json(`private root need login`);
       } else {
-        decodedToken.data.role === 'Admin'
-          ? res.status(200).json({ role: 'Admin', isAuthenticated: true })
-          : res.status(200).json({ role: 'Client', isAuthenticated: true });
+        res
+          .status(200)
+          .json({ role: decodedToken.data.role, isAuthenticated: true });
       }
     });
   } else {

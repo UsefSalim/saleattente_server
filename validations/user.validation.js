@@ -1,5 +1,5 @@
 const Joi = require('joi');
-// Joi.objectId = require('joi-objectid')(Joi);
+Joi.objectId = require('joi-objectid')(Joi);
 
 exports.patientValidation = (data) => {
   const schema = Joi.object({

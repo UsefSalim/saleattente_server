@@ -3,7 +3,7 @@
 const jwt = require('jsonwebtoken');
 const Sale = require('../models/salle_attente.models');
 
-exports.ifExist = async (req, Model) =>
+exports.ifMailExist = async (req, Model) =>
   await Model.findOne({ email: req.body.email });
 
 exports.todaySale = async () => await Sale.findOne().sort({ date: -1 });

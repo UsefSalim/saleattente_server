@@ -25,7 +25,7 @@ const demande_consultationSchema = Schema({
   },
   etat: {
     type: String,
-    ennum: ['En attente', 'En cours', 'Examiné'],
+    ennum: ['En attente', 'En cours', 'Examiné', 'Abondonné'],
     dafault: 'En attente',
   },
 });

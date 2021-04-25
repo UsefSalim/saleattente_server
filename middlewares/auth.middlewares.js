@@ -30,7 +30,7 @@ exports.auth = async (req, res, next) => {
 
 exports.verifIsAuthenticated = (req, res) => {
   const token = req.cookies._token;
-  console.log(token);
+  // console.log(token);
   if (token) {
     jwt.verify(token, process.env.SECRET_TOKEN, async (err, decodedToken) => {
       if (err) {

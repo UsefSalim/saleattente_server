@@ -21,10 +21,14 @@ exports.profileUser = async (req, res) => {
   const user = res.currentUser;
   try {
     const saleDispo = await todaySale();
-    const patient = await Patient.find();
-    const specialite = await Specialite.find();
-    if (saleDispo && patient && specialite)
-      res.status(200).json({ user, saleDispo, patient, specialite });
+    if (saleDispo) {
+      const id = saleDispo._id;
+      const patient = await Consultation.find({ id_sale: id })
+        .populate('id_patient')
+        .select('id_patient -_id');
+      const specialite = await Specialite.find();
+      return res.status(200).json({ user, saleDispo, patient, specialite });
+    }
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -35,8 +39,9 @@ exports.createConsultation = async (req, res) => {
   try {
     const activeSale = await todaySale();
     if (activeSale) {
+      const { id_sale } = activeSale._id;
       const firstConsultation = await Consultation.findOne({
-        id_sale: activeSale._id,
+        id_sale,
         id_medecin,
       });
       if (cin) {
@@ -66,7 +71,7 @@ exports.createConsultation = async (req, res) => {
           ? (Order = 1)
           : (Order = firstConsultation.numero_ordre + 1);
         const newConsultation = new Consultation({
-          id_sale: activeSale._id,
+          id_sale,
           id_patient: newpatient._id,
           id_medecin,
           numero_order: Order,
@@ -75,6 +80,11 @@ exports.createConsultation = async (req, res) => {
         const createClientAndCreateDemande = await task
           .save('patient', newpatient)
           .save('demande_consultation', newConsultation)
+          .update(
+            'salle_attente',
+            { _id: id_sale },
+            { $set: { total_patient: activeSale.total_patient + 1 } }
+          )
           .run({ useMongoose: true });
         if (createClientAndCreateDemande)
           return res.status(201).json('patient crée Consultation En attente');

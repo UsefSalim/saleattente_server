@@ -18,6 +18,11 @@ const demande_consultationSchema = Schema({
     ref: 'medecin',
     required: true,
   },
+  id_specialite: {
+    type: Schema.Types.ObjectId,
+    ref: 'specialite',
+    required: true,
+  },
   numero_ordre: {
     type: Number,
     require: true,

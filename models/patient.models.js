@@ -21,7 +21,7 @@ const patientSchema = Schema({
     unique: true,
   },
   date_naissance: {
-    type: Date,
+    type: String,
     required: true,
   },
 });
